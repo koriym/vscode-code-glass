@@ -20,10 +20,6 @@ CodeGlass is a Visual Studio Code extension designed to enhance code readability
 ### 1. Clone and Setup
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/code-glass.git
-   cd code-glass
-   ```
 
 2. Install dependencies:
    ```
