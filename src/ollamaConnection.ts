@@ -28,8 +28,8 @@ export class OllamaConnection {
   
       console.log('Response received from Ollama:', response.data);
       progress.report({ message: 'Processing AI response...' });
-
-      return response.data.response;
+  
+      return response.data.response || 'Unable to generate comment.';
     } catch (error) {
       console.error('Error generating comment:', error);
       if (axios.isAxiosError(error)) {
