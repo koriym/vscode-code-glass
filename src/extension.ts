@@ -14,9 +14,9 @@ export function activate(context: vscode.ExtensionContext) {
             const content = document.getText();
 
             try {
-                const aiComment = await vscode.window.withProgress({
+                const commentedCode = await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
-                    title: "CodeGlass: Generating AI comment",
+                    title: "CodeGlass: Generating comments",
                     cancellable: true
                 }, async (progress, token) => {
                     token.onCancellationRequested(() => {
@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
                     {}
                 );
 
-                panel.webview.html = getWebviewContent(content, aiComment);
+                panel.webview.html = getWebviewContent(commentedCode);
                 console.log('Webview panel created and content set');
             } catch (error) {
                 console.error('Error in CodeGlass extension:', error);
@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 }
 
-function getWebviewContent(sourceCode: string, aiComment: string) {
+function getWebviewContent(commentedCode: string) {
     return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -56,57 +56,50 @@ function getWebviewContent(sourceCode: string, aiComment: string) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CodeGlass Preview</title>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #1e1e1e;
-                color: #d4d4d4;
-                padding: 20px;
+            body { 
+                font-family: Arial, sans-serif; 
+                background-color: #1e1e1e; 
+                color: #d4d4d4; 
             }
-            h1 {
-                color: #ffffff;
-            }
-            pre {
-                background-color: #2d2d2d;
-                color: #d4d4d4;
-                padding: 15px;
+            pre { 
+                background-color: #2d2d2d; 
+                padding: 10px; 
                 border-radius: 5px;
                 overflow-x: auto;
             }
-            .ai-comment {
-                background-color: #264f78;
-                color: #ffffff;
-                padding: 15px;
-                margin-bottom: 20px;
-                border-radius: 5px;
+            code {
+                font-family: 'Consolas', 'Courier New', monospace;
             }
-            .ai-comment h3 {
-                margin-top: 0;
+            .commented-code { 
+                margin-top: 20px; 
+            }
+            h1, h2 { 
+                color: #ffffff; 
             }
         </style>
     </head>
     <body>
         <h1>CodeGlass Preview</h1>
-        <div class="ai-comment">
-            <h3>AI Comment:</h3>
-            <p>${aiComment || 'Unable to generate comment.'}</p>
+        <div class="commented-code">
+            <h2>Commented Code</h2>
+            <pre><code>${escapeHtml(commentedCode)}</code></pre>
         </div>
-        <pre><code>${escapeHtml(sourceCode)}</code></pre>
     </body>
     </html>`;
 }
 
-function escapeHtml(unsafe: string) {
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+    return String(error);
+}
+
+function escapeHtml(unsafe: string): string {
     return unsafe
          .replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
-}
-
-function getErrorMessage(error: unknown): string {
-    if (error instanceof Error) return error.message;
-    return String(error);
 }
 
 export function deactivate() {}
