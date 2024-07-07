@@ -1,8 +1,12 @@
-# CodeGlass
+# CodeGlass - WIP
 
-## Under development - No satisfactory response yet
+CodeGlass is a Visual Studio Code extension designed to enhance code readability and understanding. It uses AI to generate insightful comments for source code, making it easier for developers to comprehend complex codebases, learn new languages, and onboard to new projects.
 
-CodeGlass is a VS Code extension that uses AI to generate comments for your code. It's powered by Ollama and CodeLlama models.
+## Core Features
+
+1. **Code Preview**: Display the current active editor's content in a side panel.
+2. **AI-Powered Comments**: Generate and display AI-created comments alongside the original code (to be implemented).
+3. **Hypertext Capabilities**: Add @link annotations to comments, referencing language documentation or library information (to be implemented).
 
 ## Prerequisites
 
@@ -17,7 +21,7 @@ CodeGlass is a VS Code extension that uses AI to generate comments for your code
 
 1. Clone the repository:
    ```
-   git clone {this repository}
+   git clone https://github.com/your-username/code-glass.git
    cd code-glass
    ```
 
@@ -26,7 +30,46 @@ CodeGlass is a VS Code extension that uses AI to generate comments for your code
    npm install
    ```
 
-### 2. Running the Extension
+### 2. Setting up the AI Model
+
+1. Ensure Ollama is installed and running.
+
+2. Pull the codellama:7b-instruct model:
+   ```
+   ollama pull codellama:7b-instruct
+   ```
+
+3. Create a `Modelfile` in the project root with the following content:
+   ```
+   FROM codellama:7b-instruct
+
+   PARAMETER temperature 0.2
+   PARAMETER top_p 0.95
+
+   SYSTEM """
+   You are an AI assistant specialized in analyzing source code and generating insightful comments. Your task is to enhance code readability and understanding by providing brief, clear explanations. Focus on:
+   1. Summarizing the main purpose of the code.
+   2. Identifying key algorithms or design patterns used.
+   3. Highlighting potential issues or areas for improvement.
+   4. Explaining complex or non-obvious parts of the code.
+   Be precise, technical, and keep your comments concise.
+   """
+
+   PROMPT """
+   Analyze the following code and provide insightful comments:
+
+   {{.prompt}}
+
+   Comments:
+   """
+   ```
+
+4. Create the CodeGlass model:
+   ```
+   ollama create codeglass -f Modelfile
+   ```
+
+### 3. Running the Extension
 
 1. Open the project in VS Code:
    ```
@@ -36,42 +79,6 @@ CodeGlass is a VS Code extension that uses AI to generate comments for your code
 2. Press F5 to start debugging. This will open a new VS Code window with the extension loaded.
 
 3. In the new window, open a code file and run the "CodeGlass: Show Code Preview" command from the command palette (Ctrl+Shift+P or Cmd+Shift+P).
-
-### 3. Adjusting the AI Model
-
-The extension uses an Ollama model. To adjust or change the model:
-
-1. Edit the `Modelfile` in the project root:
-   ```
-   FROM codellama:7b-instruct
-
-   PARAMETER temperature 0.2
-   PARAMETER top_p 0.95
-
-   SYSTEM """
-   You are an expert code analyst. Your task is to provide brief, insightful comments about given code snippets. Focus on the main purpose, key features, and potential improvements. Be concise and technical.
-   """
-
-   PROMPT """
-   Analyze the following code and provide a brief, insightful comment:
-
-   {{.prompt}}
-
-   Your analysis:
-   """
-   ```
-
-2. Create a new model with Ollama:
-   ```
-   ollama create codeglass -f Modelfile
-   ```
-
-3. Test the model:
-   ```
-   ollama run codeglass "Analyze this code: print('Hello, World!')"
-   ```
-
-4. If needed, adjust the `Modelfile` and repeat steps 2-3 until satisfied.
 
 ### 4. Editing the Code
 
@@ -83,10 +90,16 @@ The extension uses an Ollama model. To adjust or change the model:
    ```
 4. Restart the debug session in VS Code (F5) to test your changes.
 
+## Current Status and Future Development
+
+- The Code Preview feature is implemented and functional.
+- AI-Powered Comments and Hypertext Capabilities are planned for future implementation.
+- We are currently using the codellama:7b-instruct model for generating comments.
+
 ## Troubleshooting
 
-- If you encounter "Unable to generate comment" errors, check that Ollama is running and the model is correctly loaded.
-- For other issues, check the Debug Console in VS Code for detailed error messages.
+- If you encounter issues with the AI model, ensure Ollama is running and the codeglass model is correctly loaded.
+- Check the Debug Console in VS Code for detailed error messages.
 
 ## Contributing
 
