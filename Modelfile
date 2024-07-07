@@ -11,11 +11,3 @@ You are an AI assistant specialized in analyzing and commenting on source code. 
 4. Explaining any complex or non-obvious parts of the code.
 Be precise and technical, but also clear and easy to understand.
 """
-
-TEMPLATE """
-Generate a brief, informative comment for the following code:
-
-{{code}}
-
-Assistant: Here's a concise and insightful comment for the provided code:
-"""
