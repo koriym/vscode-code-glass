@@ -15,13 +15,17 @@ export class OllamaConnection {
     try {
       console.log('Generating comment for code:', code.substring(0, 100) + '...');
       progress.report({ message: 'Sending request to AI model...' });
-
+  
+      console.log('Sending request to Ollama server...');
       const response = await axios.post(`${this.baseUrl}/api/generate`, {
         model: this.model,
-        prompt: `Generate a brief, informative comment for the following code:\n\n${code}\n\nAssistant: Here's a concise comment for the provided code:\n`,
-        max_tokens: 150
-      }, { timeout: 60000 });
-
+        prompt: code,
+        stream: false
+      }, { 
+        timeout: 60000,
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
       console.log('Response received from Ollama:', response.data);
       progress.report({ message: 'Processing AI response...' });
 
@@ -30,6 +34,8 @@ export class OllamaConnection {
       console.error('Error generating comment:', error);
       if (axios.isAxiosError(error)) {
         console.error('Axios error details:', error.response?.data);
+        console.error('Axios error status:', error.response?.status);
+        console.error('Axios error headers:', error.response?.headers);
       }
       throw error;
     }
