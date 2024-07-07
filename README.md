@@ -1,5 +1,7 @@
 # CodeGlass
 
+## Under development - No satisfactory response yet
+
 CodeGlass is a VS Code extension that uses AI to generate comments for your code. It's powered by Ollama and CodeLlama models.
 
 ## Prerequisites
