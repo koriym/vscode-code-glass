@@ -1,17 +1,95 @@
 # CodeGlass
 
-CodeGlass is a Visual Studio Code extension designed to enhance code readability and understanding. It uses AI to generate insightful comments for source code, making it easier for developers to comprehend complex codebases, learn new languages, and onboard to new projects.
+CodeGlass is a VS Code extension that uses AI to generate comments for your code. It's powered by Ollama and CodeLlama models.
 
-## Current Status
+## Prerequisites
 
-This project is in its early stages of development. We're excited to share our progress and welcome contributions from the community!
+- Node.js (v14 or later)
+- npm
+- Visual Studio Code
+- [Ollama](https://ollama.ai/)
 
-## Features (Planned)
+## Getting Started
 
-- **Code Preview**: Display the current active editor's content in a side panel.
-- **AI-Powered Comments**: Generate and display AI-created comments alongside the original code.
-- **Hypertext Capabilities**: Add `@link` annotations to comments, referencing language documentation or library information.
+### 1. Clone and Setup
 
-## Installation
+1. Clone the repository:
+   ```
+   git clone {this repository}
+   cd code-glass
+   ```
 
-This extension is not yet available on the VS Code marketplace. Stay tuned for updates!
+2. Install dependencies:
+   ```
+   npm install
+   ```
+
+### 2. Running the Extension
+
+1. Open the project in VS Code:
+   ```
+   code .
+   ```
+
+2. Press F5 to start debugging. This will open a new VS Code window with the extension loaded.
+
+3. In the new window, open a code file and run the "CodeGlass: Show Code Preview" command from the command palette (Ctrl+Shift+P or Cmd+Shift+P).
+
+### 3. Adjusting the AI Model
+
+The extension uses an Ollama model. To adjust or change the model:
+
+1. Edit the `Modelfile` in the project root:
+   ```
+   FROM codellama:7b-instruct
+
+   PARAMETER temperature 0.2
+   PARAMETER top_p 0.95
+
+   SYSTEM """
+   You are an expert code analyst. Your task is to provide brief, insightful comments about given code snippets. Focus on the main purpose, key features, and potential improvements. Be concise and technical.
+   """
+
+   PROMPT """
+   Analyze the following code and provide a brief, insightful comment:
+
+   {{.prompt}}
+
+   Your analysis:
+   """
+   ```
+
+2. Create a new model with Ollama:
+   ```
+   ollama create codeglass -f Modelfile
+   ```
+
+3. Test the model:
+   ```
+   ollama run codeglass "Analyze this code: print('Hello, World!')"
+   ```
+
+4. If needed, adjust the `Modelfile` and repeat steps 2-3 until satisfied.
+
+### 4. Editing the Code
+
+1. Main extension logic is in `src/extension.ts`
+2. AI interaction is handled in `src/ollamaConnection.ts`
+3. After making changes, recompile the project:
+   ```
+   npm run compile
+   ```
+4. Restart the debug session in VS Code (F5) to test your changes.
+
+## Troubleshooting
+
+- If you encounter "Unable to generate comment" errors, check that Ollama is running and the model is correctly loaded.
+- For other issues, check the Debug Console in VS Code for detailed error messages.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+[MIT License](LICENSE)
