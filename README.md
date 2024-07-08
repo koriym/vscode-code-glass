@@ -31,33 +31,27 @@ CodeGlass is a Visual Studio Code extension designed to enhance code readability
 1. Ensure Ollama is installed and running.
 
 2. Pull the codellama:7b-instruct model:
+
    ```
-   ollama pull codellama:7b-instruct
+   ollama pull deepseek-coder-v2:16b
    ```
 
 3. Create a `Modelfile` in the project root with the following content:
+
    ```
-   FROM codellama:7b-instruct
+FROM deepseek-coder-v2:16b
 
-   PARAMETER temperature 0.2
-   PARAMETER top_p 0.95
+PARAMETER temperature 0.2
+PARAMETER top_p 0.95
 
-   SYSTEM """
-   You are an AI assistant specialized in analyzing source code and generating insightful comments. Your task is to enhance code readability and understanding by providing brief, clear explanations. Focus on:
-   1. Summarizing the main purpose of the code.
-   2. Identifying key algorithms or design patterns used.
-   3. Highlighting potential issues or areas for improvement.
-   4. Explaining complex or non-obvious parts of the code.
-   Be precise, technical, and keep your comments concise.
-   """
-
-   PROMPT """
-   Analyze the following code and provide insightful comments:
-
-   {{.prompt}}
-
-   Comments:
-   """
+SYSTEM """
+You are an AI assistant specialized in analyzing source code and generating insightful comments. Your task is to enhance code readability and understanding by providing brief, clear explanations. Focus on:
+1. Summarizing the main purpose of the code.
+2. Identifying key algorithms or design patterns used.
+3. Highlighting potential issues or areas for improvement.
+4. Explaining complex or non-obvious parts of the code.
+Be precise, technical, and keep your comments concise.
+"""
    ```
 
 4. Create the CodeGlass model:
