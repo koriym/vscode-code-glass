@@ -1,5 +1,5 @@
-import axios from 'axios';
 import * as vscode from 'vscode';
+import axios from 'axios';
 
 export class OllamaConnection {
   private baseUrl: string;
@@ -31,9 +31,6 @@ export class OllamaConnection {
       return response.data.response || 'Unable to add comments.';
     } catch (error) {
       console.error('Error adding comments:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error details:', error.response?.data);
-      }
       throw error;
     }
   }
