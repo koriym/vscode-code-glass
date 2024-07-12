@@ -38,7 +38,7 @@ CodeGlass is a Visual Studio Code extension designed to enhance code readability
 
 3. Create a `Modelfile` in the project root with the following content:
 
-   ```
+```
 FROM deepseek-coder-v2:16b
 
 PARAMETER temperature 0.2
@@ -52,7 +52,7 @@ You are an AI assistant specialized in analyzing source code and generating insi
 4. Explaining complex or non-obvious parts of the code.
 Be precise, technical, and keep your comments concise.
 """
-   ```
+```
 
 4. Create the CodeGlass model:
    ```
