@@ -1,105 +1,68 @@
 import * as vscode from 'vscode';
-import { OllamaConnection } from './ollamaConnection';
+import axios from 'axios';
+import * as path from 'path';
+import * as fs from 'fs';
+import { phpPrompt } from './prompts'; // プロンプトをインポート
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('CodeGlass is now active!');
 
-    const ollamaConnection = new OllamaConnection();
-
-    let disposable = vscode.commands.registerCommand('codeglass.showPreview', async () => {
-        console.log('CodeGlass: Show Code Preview command triggered');
+    let disposable = vscode.commands.registerCommand('codeglass.addComments', async () => {
         const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const document = editor.document;
-            const content = document.getText();
-
-            try {
-                const commentedCode = await vscode.window.withProgress({
-                    location: vscode.ProgressLocation.Notification,
-                    title: "CodeGlass: Generating comments",
-                    cancellable: true
-                }, async (progress, token) => {
-                    token.onCancellationRequested(() => {
-                        console.log("User canceled the long running operation");
-                    });
-
-                    progress.report({ message: "Analyzing code..." });
-                    return await ollamaConnection.generateComment(content, progress);
-                });
-
-                const panel = vscode.window.createWebviewPanel(
-                    'codeGlassPreview',
-                    'CodeGlass Preview',
-                    vscode.ViewColumn.Beside,
-                    {}
-                );
-
-                panel.webview.html = getWebviewContent(commentedCode);
-                console.log('Webview panel created and content set');
-            } catch (error) {
-                console.error('Error in CodeGlass extension:', error);
-                vscode.window.showErrorMessage(`An error occurred in CodeGlass: ${getErrorMessage(error)}. Check the debug console for more details.`);
-            }
-        } else {
+        if (!editor) {
             vscode.window.showInformationMessage('No active editor found');
+            return;
+        }
+
+        const document = editor.document;
+        const code = document.getText();
+        const languageId = document.languageId;
+        const fileName = document.fileName;
+        const fileExtension = path.extname(fileName);
+
+        const config = vscode.workspace.getConfiguration('codeglass');
+        const baseUrl = config.get('baseUrl') as string || 'http://localhost:11434';
+        const model = config.get('model') as string || 'codeglass';
+
+        const promptTemplate = languageId === 'php' ? phpPrompt : config.get('defaultPrompt') as string;
+        const fullPrompt = `${promptTemplate}\n\nFile: ${path.basename(fileName)}\n\n${code}`;
+
+        try {
+            const response = await axios.post(`${baseUrl}/api/generate`, {
+                model: model,
+                prompt: fullPrompt,
+                stream: false
+            });
+
+            const commentedCode = response.data.response;
+
+            // 新しいファイル名を生成
+            const directory = path.dirname(fileName);
+            const baseName = path.basename(fileName, fileExtension);
+            const newFileName = path.join(directory, `${baseName}_commented${fileExtension}`);
+
+            // コメント付きコードを新しいファイルに保存
+            fs.writeFileSync(newFileName, commentedCode);
+
+            // 新しいファイルを開く
+            const openPath = vscode.Uri.file(newFileName);
+            const doc = await vscode.workspace.openTextDocument(openPath);
+
+            // 現在のエディターのビュー列を取得
+            const activeViewColumn = editor.viewColumn;
+
+            // コメント付きコードファイルを別のビュー列に表示
+            await vscode.window.showTextDocument(doc, activeViewColumn ? activeViewColumn + 1 : vscode.ViewColumn.Beside);
+
+            vscode.window.showInformationMessage(`Commented code saved to ${newFileName}`);
+
+        } catch (error) {
+            console.error('Error in CodeGlass extension:', error);
+            vscode.window.showErrorMessage('An error occurred while generating comments. Please check the console for details.');
         }
     });
 
     context.subscriptions.push(disposable);
-}
-
-function getWebviewContent(commentedCode: string) {
-    return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>CodeGlass Preview</title>
-        <style>
-            body { 
-                font-family: Arial, sans-serif; 
-                background-color: #1e1e1e; 
-                color: #d4d4d4; 
-            }
-            pre { 
-                background-color: #2d2d2d; 
-                padding: 10px; 
-                border-radius: 5px;
-                overflow-x: auto;
-            }
-            code {
-                font-family: 'Consolas', 'Courier New', monospace;
-            }
-            .commented-code { 
-                margin-top: 20px; 
-            }
-            h1, h2 { 
-                color: #ffffff; 
-            }
-        </style>
-    </head>
-    <body>
-        <h1>CodeGlass Preview</h1>
-        <div class="commented-code">
-            <h2>Commented Code</h2>
-            <pre><code>${escapeHtml(commentedCode)}</code></pre>
-        </div>
-    </body>
-    </html>`;
-}
-
-function getErrorMessage(error: unknown): string {
-    if (error instanceof Error) return error.message;
-    return String(error);
-}
-
-function escapeHtml(unsafe: string): string {
-    return unsafe
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
 }
 
 export function deactivate() {}

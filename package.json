@@ -1,38 +1,63 @@
 {
   "name": "codeglass",
   "displayName": "CodeGlass",
-  "description": "AI-powered code insights for VS Code",
+  "description": "AI-powered code commenting tool",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.60.0"
   },
   "categories": [
     "Other"
   ],
+  "activationEvents": [
+    "onCommand:codeglass.addComments"
+  ],
+  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "codeglass.showPreview",
-        "title": "CodeGlass: Show Code Preview"
+        "command": "codeglass.addComments",
+        "title": "CodeGlass: Add Comments"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "CodeGlass",
+      "properties": {
+        "codeglass.baseUrl": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Base URL for the Ollama API"
+        },
+        "codeglass.model": {
+          "type": "string",
+          "default": "codeglass",
+          "description": "Model to use for generating comments"
+        },
+        "codeglass.defaultPrompt": {
+          "type": "string",
+          "default": "Add appropriate comments to the following code to improve readability:",
+          "description": "Default prompt template for comment generation"
+        },
+        "codeglass.prompts": {
+          "type": "object",
+          "default": {},
+          "description": "Language-specific prompt templates",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
   },
-  "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "npx tsc -p .",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/node": "^14.14.37",
-    "@types/vscode": "^1.75.0",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.25.0",
-    "typescript": "^4.9.5"
+    "@types/vscode": "^1.60.0",
+    "@types/node": "14.x",
+    "typescript": "^4.3.2"
   },
   "dependencies": {
     "axios": "^0.21.1"
