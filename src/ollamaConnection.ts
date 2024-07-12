@@ -11,14 +11,14 @@ export class OllamaConnection {
     console.log(`OllamaConnection initialized with baseUrl: ${baseUrl} and model: ${model}`);
   }
 
-  async generateComment(code: string, progress: vscode.Progress<{ message?: string; increment?: number }>): Promise<string> {
+  async generateComment(code: string, prompt: string, progress: vscode.Progress<{ message?: string; increment?: number }>): Promise<string> {
     try {
       console.log('Adding comments to code:', code.substring(0, 100) + '...');
       progress.report({ message: 'Analyzing code and adding comments...' });
   
       const response = await axios.post(`${this.baseUrl}/api/generate`, {
         model: this.model,
-        prompt: `Add appropriate comments to the following code while preserving its original structure. Only return the commented code:\n\n${code}`,
+        prompt: prompt,
         stream: false
       }, { 
         timeout: 60000,
