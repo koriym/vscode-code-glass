@@ -57,6 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
                         const parsedChunk = JSON.parse(chunk);
                         if (parsedChunk.done) {
                             console.log('Stream completed');
+                            return;
                         } else if (parsedChunk.response) {
                             const lastLine = tempDocument.lineCount - 1;
                             const lastLineText = tempDocument.lineAt(lastLine).text;
