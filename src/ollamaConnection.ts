@@ -2,36 +2,42 @@ import * as vscode from 'vscode';
 import axios from 'axios';
 
 export class OllamaConnection {
-  private baseUrl: string;
-  private model: string;
+    constructor(private baseUrl: string, private model: string) {}
 
-  constructor(baseUrl: string = 'http://localhost:11434', model: string = 'codeglass') {
-    this.baseUrl = baseUrl;
-    this.model = model;
-    console.log(`OllamaConnection initialized with baseUrl: ${baseUrl} and model: ${model}`);
-  }
+    async generateCommentStream(
+        code: string,
+        prompt: string,
+        onChunk: (chunk: string) => void,
+        onProgress: (progress: number) => void,
+        token: vscode.CancellationToken
+    ): Promise<void> {
+        try {
+            const response = await axios.post(`${this.baseUrl}/api/generate`, {
+                model: this.model,
+                prompt: prompt,
+                stream: true
+            }, {
+                responseType: 'stream'
+            });
 
-  async generateComment(code: string, prompt: string, progress: vscode.Progress<{ message?: string; increment?: number }>): Promise<string> {
-    try {
-      console.log('Adding comments to code:', code.substring(0, 100) + '...');
-      progress.report({ message: 'Analyzing code and adding comments...' });
-  
-      const response = await axios.post(`${this.baseUrl}/api/generate`, {
-        model: this.model,
-        prompt: prompt,
-        stream: false
-      }, { 
-        timeout: 60000,
-        headers: { 'Content-Type': 'application/json' }
-      });
-  
-      console.log('Response received from Ollama');
-      progress.report({ message: 'Processing AI response...' });
-  
-      return response.data.response || 'Unable to add comments.';
-    } catch (error) {
-      console.error('Error adding comments:', error);
-      throw error;
+            return new Promise<void>((resolve, reject) => {
+                response.data.on('data', (chunk: Buffer) => {
+                    const chunkStr = chunk.toString();
+                    onChunk(chunkStr);
+                    onProgress(chunkStr.length);
+                });
+
+                response.data.on('end', () => {
+                    resolve();
+                });
+
+                response.data.on('error', (error: Error) => {
+                    reject(error);
+                });
+            });
+        } catch (error) {
+            console.error('Error in generateCommentStream:', error);
+            throw error;
+        }
     }
-  }
 }

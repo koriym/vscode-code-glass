@@ -51,6 +51,8 @@ export function activate(context: vscode.ExtensionContext) {
             cancellable: true
         }, async (progress, token) => {
             try {
+                let buffer = '';
+
                 const streamHandler = (chunk: string) => {
                     console.log(`Received chunk: ${chunk}`);
                     try {
@@ -59,13 +61,17 @@ export function activate(context: vscode.ExtensionContext) {
                             console.log('Stream completed');
                             return;
                         } else if (parsedChunk.response) {
-                            const lastLine = tempDocument.lineCount - 1;
-                            const lastLineText = tempDocument.lineAt(lastLine).text;
-                            const range = new vscode.Range(new vscode.Position(lastLine, 0), new vscode.Position(lastLine, lastLineText.length));
+                            buffer += parsedChunk.response;
+                            if (buffer.endsWith('\n') || buffer.length > 1000) {
+                                const lastLine = tempDocument.lineCount - 1;
+                                const lastLineText = tempDocument.lineAt(lastLine).text;
+                                const range = new vscode.Range(new vscode.Position(lastLine, 0), new vscode.Position(lastLine, lastLineText.length));
 
-                            tempEditor.edit(editBuilder => {
-                                editBuilder.replace(range, lastLineText + parsedChunk.response);
-                            });
+                                tempEditor.edit(editBuilder => {
+                                    editBuilder.replace(range, lastLineText + buffer);
+                                });
+                                buffer = '';
+                            }
                         }
                     } catch (e) {
                         console.error('Error parsing chunk:', e);
@@ -80,6 +86,17 @@ export function activate(context: vscode.ExtensionContext) {
                 };
 
                 await ollamaConnection.generateCommentStream(code, fullPrompt, streamHandler, progressHandler, token);
+
+                // 最後にバッファに残っている内容を追加
+                if (buffer.length > 0) {
+                    const lastLine = tempDocument.lineCount - 1;
+                    const lastLineText = tempDocument.lineAt(lastLine).text;
+                    const range = new vscode.Range(new vscode.Position(lastLine, 0), new vscode.Position(lastLine, lastLineText.length));
+
+                    tempEditor.edit(editBuilder => {
+                        editBuilder.replace(range, lastLineText + buffer);
+                    });
+                }
 
                 vscode.window.showInformationMessage(`コメント付きコードが生成されました`);
             } catch (error) {
