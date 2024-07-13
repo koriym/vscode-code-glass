@@ -20,14 +20,14 @@ export function activate(context: vscode.ExtensionContext) {
         const fileExtension = path.extname(fileName);
 
         const config = vscode.workspace.getConfiguration('codeglass');
-        const baseUrl = config.get('baseUrl') as string;
-        const model = config.get('model') as string;
+        const baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || config.get('baseUrl') as string
+        const model =  process.env.CODEGLASS_MODEL_KEY as string || config.get('model') as string;
         const apiKey = process.env.CODEGLASS_API_KEY as string;
 
-        console.log(`Configuration - baseUrl: ${baseUrl}, model: ${model}, apiKey: !${baseUrl.includes('localhost') ? (apiKey ? '********' : 'not set') : 'not required'}`);
+        // console.log(`Configuration - baseUrl: ${baseUrl}, model: ${model}, apiKey: !${baseUrl.includes('localhost') ? (apiKey ? '********' : 'not set') : 'not required'}`);
 
-        if (!baseUrl || !model || !baseUrl.includes('localhost') && !apiKey) {
-            vscode.window.showErrorMessage('CodeGlass設定が正しくありません。baseUrl、model、および必要に応じてAPIキーを設定してください。');
+        if (!baseUrl.includes('localhost') && !apiKey) {
+            vscode.window.showErrorMessage('CodeGlass設定が正しくありません。ローカルでない時にはAPIキーを設定してください。');
             return;
         }
 
