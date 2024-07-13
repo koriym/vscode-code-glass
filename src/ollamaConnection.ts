@@ -1,8 +1,8 @@
+import axios, { AxiosInstance } from 'axios';
 import * as vscode from 'vscode';
-import axios from 'axios';
 
 export class OllamaConnection {
-    constructor(private baseUrl: string, private model: string) {}
+    constructor(private baseUrl: string, private model: string, private apiKey: string) {}
 
     async generateCommentStream(
         code: string,
@@ -17,6 +17,9 @@ export class OllamaConnection {
                 prompt: prompt,
                 stream: true
             }, {
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`
+                },
                 responseType: 'stream'
             });
 

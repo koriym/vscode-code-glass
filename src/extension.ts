@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { OllamaConnection } from './OllamaConnection';
+import { OllamaConnection } from './ollamaConnection';
 import { defaultPrompt } from './prompts';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -20,14 +20,23 @@ export function activate(context: vscode.ExtensionContext) {
         const fileExtension = path.extname(fileName);
 
         const config = vscode.workspace.getConfiguration('codeglass');
-        const baseUrl = config.get('baseUrl') as string || 'http://localhost:11434';
-        const model = config.get('model') as string || 'codeglass';
+        const baseUrl = config.get('baseUrl') as string;
+        const model = config.get('model') as string;
+        const apiKey = process.env.CODEGLASS_API_KEY as string;
+
+        console.log(`Configuration - baseUrl: ${baseUrl}, model: ${model}, apiKey: !${baseUrl.includes('localhost') ? (apiKey ? '********' : 'not set') : 'not required'}`);
+
+        if (!baseUrl || !model || !baseUrl.includes('localhost') && !apiKey) {
+            vscode.window.showErrorMessage('CodeGlass設定が正しくありません。baseUrl、model、および必要に応じてAPIキーを設定してください。');
+            return;
+        }
+
         const promptTemplate = defaultPrompt;
         const fullPrompt = promptTemplate
             .replace('{fileName}', path.basename(fileName))
             .replace('{code}', code);
 
-        const ollamaConnection = new OllamaConnection(baseUrl, model);
+        const ollamaConnection = new OllamaConnection(baseUrl, model, apiKey);
 
         // 一時ファイルのパスを生成
         const tempDir = path.join(context.extensionPath, 'temp');
