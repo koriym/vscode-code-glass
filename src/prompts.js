@@ -1,4 +1,7 @@
-export const defaultPrompt = `
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.defaultPrompt = void 0;
+exports.defaultPrompt = `
 # コードコメント追加指示
 
 以下の指示に厳密に従って、与えられたコードにコメントを追加してください：
@@ -40,4 +43,4 @@ Love:
 - いつも応援してます。
 - 頼りにしてます。最後までやり切ってくださいね。
 `;
-
+//# sourceMappingURL=prompts.js.map

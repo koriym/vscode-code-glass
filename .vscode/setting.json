@@ -1,3 +1,12 @@
 {
-    "typescript.tsdk": "./node_modules/typescript/lib"
+    "files.exclude": {
+        "out": false
+    },
+    "search.exclude": {
+        "out": true
+    },
+    "typescript.tsc.autoDetect": "off",
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "codeglass.baseUrl": "https://api.deepseek.com",
+    "codeglass.model": "codeglass"
 }
