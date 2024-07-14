@@ -25,12 +25,12 @@
       "properties": {
         "codeglass.baseUrl": {
           "type": "string",
-          "default": "http://localhost:11434",
+          "default": "https://api.deepseek.com",
           "description": "Base URL for the Ollama API"
         },
         "codeglass.model": {
           "type": "string",
-          "default": "codeglass",
+          "default": "deepseek-coder",
           "description": "Model name to use for generating comments"
         }
       }
@@ -38,13 +38,10 @@
   },
   "scripts": {
     "build": "node esbuild.js",
-    "build:dev": "node esbuild.js --watch",
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "watch:esbuild": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts"
   },
   "devDependencies": {
     "@types/node": "14.x",
