@@ -18,6 +18,7 @@ export class OllamaConnection {
                 stream: true
             }, {
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 responseType: 'stream'
