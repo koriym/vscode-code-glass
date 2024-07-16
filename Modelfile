@@ -1,6 +1,6 @@
 FROM deepseek-coder-v2:16b
 
-PARAMETER temperature 0.2
+PARAMETER temperature 1.0
 PARAMETER top_p 0.95
 
 SYSTEM """
