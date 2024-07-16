@@ -2,7 +2,16 @@ import axios, { AxiosInstance } from 'axios';
 import * as vscode from 'vscode';
 
 export class AiConnection {
-    constructor(private baseUrl: string, private model: string, private apiKey: string) {}
+    private baseUrl: string;
+    private model: string;
+    private apiKey: string;
+
+    constructor() {
+        const config = vscode.workspace.getConfiguration('codeglass');
+        this.baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || 'http://localhost:11434' as string;
+        this.model = process.env.CODEGLASS_MODEL_KEY as string || 'codeglass:latest' as string;
+        this.apiKey = process.env.CODEGLASS_API_KEY as string || '';
+    }
 
     async generateCommentStream(
         code: string,
@@ -12,7 +21,7 @@ export class AiConnection {
         token: vscode.CancellationToken
     ): Promise<void> {
         try {
-            const response = await axios.post(`http://127.0.0.1:11434/api/generate`, {
+            const response = await axios.post(`${this.baseUrl}/api/generate`, {
                 model: this.model,
                 prompt: prompt,
                 stream: true

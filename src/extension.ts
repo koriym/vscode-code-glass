@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
             .replace('{fileName}', path.basename(fileName))
             .replace('{code}', code);
 
-        const ollamaConnection = new AiConnection(baseUrl, model, apiKey);
+        const ollamaConnection = new AiConnection();
 
         // 一時ファイルのパスを生成
         const tempDir = path.join(context.extensionPath, 'temp');
