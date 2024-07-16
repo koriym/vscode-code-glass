@@ -92,6 +92,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 [MIT License](LICENSE)
 
-"" Additional Information
+## Additional Information
 
 In addition to the free Ollama, you can also use the paid DeepSeek-Coder-V2 API. To use this, set codeglass.connectionType in package.json configuration to deepseek. Ensure you set your API key in the `CODEGLASS_API_KEY` environment variable.
