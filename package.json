@@ -26,7 +26,7 @@
         "codeglass.connectionType": {
           "type": "string",
           "enum": ["ollama", "deepseek"],
-          "default": "deepseek",
+          "default": "ollama",
           "description": "Select the AI service to use for code commenting"
         }
       }
