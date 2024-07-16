@@ -23,15 +23,11 @@
     "configuration": {
       "title": "CodeGlass",
       "properties": {
-        "codeglass.baseUrl": {
+        "codeglass.connectionType": {
           "type": "string",
-          "default": "https://localhost:",
-          "description": "Base URL for the Ollama API"
-        },
-        "codeglass.model": {
-          "type": "string",
-          "default": "deepseek-coder-v2:16b",
-          "description": "Model name to use for generating comments"
+          "enum": ["ollama", "deepseek"],
+          "default": "deepseek",
+          "description": "Select the AI service to use for code commenting"
         }
       }
     }
