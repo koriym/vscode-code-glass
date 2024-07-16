@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import * as vscode from 'vscode';
 
-export class OllamaConnection {
+export class AiConnection {
     constructor(private baseUrl: string, private model: string, private apiKey: string) {}
 
     async generateCommentStream(
@@ -12,7 +12,7 @@ export class OllamaConnection {
         token: vscode.CancellationToken
     ): Promise<void> {
         try {
-            const response = await axios.post(`${this.baseUrl}/api/generate`, {
+            const response = await axios.post(`http://127.0.0.1:11434/api/generate`, {
                 model: this.model,
                 prompt: prompt,
                 stream: true

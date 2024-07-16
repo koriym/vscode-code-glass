@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { OllamaConnection } from './ollamaConnection';
+import { AiConnection as AiConnection } from './ollamaConnection';
 import { defaultPrompt } from './prompts';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
             .replace('{fileName}', path.basename(fileName))
             .replace('{code}', code);
 
-        const ollamaConnection = new OllamaConnection(baseUrl, model, apiKey);
+        const ollamaConnection = new AiConnection(baseUrl, model, apiKey);
 
         // 一時ファイルのパスを生成
         const tempDir = path.join(context.extensionPath, 'temp');
@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: "CodeGlass",
+            title: "CodeGlass(" + model + ")",
             cancellable: true
         }, async (progress, token) => {
             try {
