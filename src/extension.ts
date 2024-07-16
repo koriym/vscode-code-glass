@@ -66,15 +66,11 @@ export function activate(context: vscode.ExtensionContext) {
 
                 const flushBuffer = async () => {
                     if (buffer) {
-                        lines.push(buffer);
-                        buffer = '';
-                    }
-                    if (lines.length > 0) {
                         await newEditor.edit(editBuilder => {
-                            const position = new vscode.Position(0, 0);
-                            editBuilder.insert(position, lines.join('\n') + '\n');
+                            const position = new vscode.Position(newDocument.lineCount, 0);
+                            editBuilder.insert(position, buffer);
                         });
-                        lines = [];
+                        buffer = '';
                     }
                 };
 
@@ -84,12 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
                     async (content: string) => {
                         buffer += content;
                         if (buffer.includes('\n')) {
-                            const parts = buffer.split('\n');
-                            buffer = parts.pop() || '';
-                            lines = [...parts.reverse(), ...lines];
-                            if (lines.length > 5) {
-                                await flushBuffer();
-                            }
+                            await flushBuffer();
                         }
                     },
                     (progressValue: number) => {
