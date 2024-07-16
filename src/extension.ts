@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
-import { AiConnection as AiConnection } from './ollamaConnection';
-import { defaultPrompt } from './prompts';
+import { OllamaConnection } from './ollamaConnection';
+import { DeepseekConnection } from './deepseekConnection';
+import { AiConnectionInterface } from './aiConnectionInterface';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('CodeGlass is now active!');
@@ -16,101 +16,102 @@ export function activate(context: vscode.ExtensionContext) {
 
         const document = editor.document;
         const code = document.getText();
-        const fileName = document.fileName;
-        const fileExtension = path.extname(fileName);
+        const prompt = `Add comments to the following code:\n\n${code}`;
 
         const config = vscode.workspace.getConfiguration('codeglass');
-        const baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || config.get('baseUrl') as string
-        const model =  process.env.CODEGLASS_MODEL_KEY as string || config.get('model') as string;
-        const apiKey = process.env.CODEGLASS_API_KEY as string;
+        const connectionType = config.get('connectionType') as string;
 
-        // console.log(`Configuration - baseUrl: ${baseUrl}, model: ${model}, apiKey: !${baseUrl.includes('localhost') ? (apiKey ? '********' : 'not set') : 'not required'}`);
-
-        if (!baseUrl.includes('localhost') && !apiKey) {
-            vscode.window.showErrorMessage('CodeGlass設定が正しくありません。ローカルでない時にはAPIキーを設定してください。');
+        let aiConnection: AiConnectionInterface;
+        if (connectionType === 'ollama') {
+            aiConnection = new OllamaConnection();
+        } else if (connectionType === 'deepseek') {
+            aiConnection = new DeepseekConnection();
+        } else {
+            vscode.window.showErrorMessage('Invalid connection type in settings');
             return;
         }
 
-        const promptTemplate = defaultPrompt;
-        const fullPrompt = promptTemplate
-            .replace('{fileName}', path.basename(fileName))
-            .replace('{code}', code);
+        // Create or get the comments file
+        const originalFilePath = document.fileName;
+        const dirName = path.dirname(originalFilePath);
+        const baseName = path.basename(originalFilePath, path.extname(originalFilePath));
+        const newFilePath = path.join(dirName, `${baseName}_comments${path.extname(originalFilePath)}`);
+        const newUri = vscode.Uri.file(newFilePath);
+        
+        // Clear the file content or create a new empty file
+        await vscode.workspace.fs.writeFile(newUri, Buffer.from(''));
+        
+        // Open both files side by side
+        const newDocument = await vscode.workspace.openTextDocument(newUri);
+        const newEditor = await vscode.window.showTextDocument(newDocument, vscode.ViewColumn.Beside);
 
-        const ollamaConnection = new AiConnection();
-
-        // 一時ファイルのパスを生成
-        const tempDir = path.join(context.extensionPath, 'temp');
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir);
-        }
-        const tempFilePath = path.join(tempDir, `${path.basename(fileName, fileExtension)}_commented${fileExtension}`);
-
-        let tempDocument = await vscode.workspace.openTextDocument({ language: document.languageId, content: '' });
-        await vscode.window.showTextDocument(tempDocument, vscode.ViewColumn.Beside);
-        const tempEditor = vscode.window.visibleTextEditors.find(editor => editor.document.uri === tempDocument.uri);
-
-        if (!tempEditor) {
-            vscode.window.showErrorMessage('テンポラリドキュメントの作成に失敗しました。');
-            return;
-        }
+        // Ensure the new file is empty
+        await newEditor.edit(editBuilder => {
+            const fullRange = new vscode.Range(
+                newDocument.positionAt(0),
+                newDocument.positionAt(newDocument.getText().length)
+            );
+            editBuilder.delete(fullRange);
+        });
 
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: "CodeGlass(" + model + ")",
+            title: "CodeGlass: Generating comments...",
             cancellable: true
         }, async (progress, token) => {
             try {
+                let totalChars = 0;
                 let buffer = '';
+                let lines: string[] = [];
 
-                const streamHandler = (chunk: string) => {
-                    console.log(`Received chunk: ${chunk}`);
-                    try {
-                        const parsedChunk = JSON.parse(chunk);
-                        if (parsedChunk.done) {
-                            console.log('Stream completed');
-                            return;
-                        } else if (parsedChunk.response) {
-                            buffer += parsedChunk.response;
-                            if (buffer.endsWith('\n') || buffer.length > 1000) {
-                                const lastLine = tempDocument.lineCount - 1;
-                                const lastLineText = tempDocument.lineAt(lastLine).text;
-                                const range = new vscode.Range(new vscode.Position(lastLine, 0), new vscode.Position(lastLine, lastLineText.length));
-
-                                tempEditor.edit(editBuilder => {
-                                    editBuilder.replace(range, lastLineText + buffer);
-                                });
-                                buffer = '';
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Error parsing chunk:', e);
+                const flushBuffer = async () => {
+                    if (buffer) {
+                        lines.push(buffer);
+                        buffer = '';
+                    }
+                    if (lines.length > 0) {
+                        await newEditor.edit(editBuilder => {
+                            const position = new vscode.Position(0, 0);
+                            editBuilder.insert(position, lines.join('\n') + '\n');
+                        });
+                        lines = [];
                     }
                 };
 
-                const progressHandler = (processedChars: number) => {
-                    progress.report({
-                        message: `Generating comments... (${processedChars} characters)`,
-                        increment: 1
-                    });
-                };
+                await aiConnection.generateCommentStream(
+                    code,
+                    prompt,
+                    async (content: string) => {
+                        buffer += content;
+                        if (buffer.includes('\n')) {
+                            const parts = buffer.split('\n');
+                            buffer = parts.pop() || '';
+                            lines = [...parts.reverse(), ...lines];
+                            if (lines.length > 5) {
+                                await flushBuffer();
+                            }
+                        }
+                    },
+                    (progressValue: number) => {
+                        totalChars += progressValue;
+                        progress.report({ increment: progressValue, message: `Generated ${totalChars} characters` });
+                    },
+                    token
+                );
 
-                await ollamaConnection.generateCommentStream(code, fullPrompt, streamHandler, progressHandler, token);
+                // Flush any remaining content
+                await flushBuffer();
 
-                // 最後にバッファに残っている内容を追加
-                if (buffer.length > 0) {
-                    const lastLine = tempDocument.lineCount - 1;
-                    const lastLineText = tempDocument.lineAt(lastLine).text;
-                    const range = new vscode.Range(new vscode.Position(lastLine, 0), new vscode.Position(lastLine, lastLineText.length));
-
-                    tempEditor.edit(editBuilder => {
-                        editBuilder.replace(range, lastLineText + buffer);
-                    });
-                }
-
-                vscode.window.showInformationMessage(`コメント付きコードが生成されました`);
+                vscode.window.showInformationMessage('Comments generation completed.');
             } catch (error) {
-                console.error('CodeGlass拡張機能でエラーが発生しました:', error);
-                vscode.window.showErrorMessage('コメントの生成中にエラーが発生しました。詳細はコンソールをご確認ください。');
+                console.error('Error in generateCommentStream:', error);
+                let errorMessage = 'An error occurred while generating comments.';
+                if (error instanceof Error) {
+                    errorMessage += ' ' + error.message;
+                } else if (typeof error === 'string') {
+                    errorMessage += ' ' + error;
+                }
+                vscode.window.showErrorMessage(errorMessage);
             }
         });
     });
