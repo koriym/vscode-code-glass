@@ -1,16 +1,13 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 import * as vscode from 'vscode';
+import { AiConnectionInterface } from './aiConnectionInterface';
 
-export class AiConnection {
+export class OllamaConnection implements AiConnectionInterface {
     private baseUrl: string;
-    private model: string;
-    private apiKey: string;
 
     constructor() {
         const config = vscode.workspace.getConfiguration('codeglass');
-        this.baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || 'http://localhost:11434' as string;
-        this.model = process.env.CODEGLASS_MODEL_KEY as string || 'codeglass:latest' as string;
-        this.apiKey = process.env.CODEGLASS_API_KEY as string || '';
+        this.baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || 'http://localhost:11434';
     }
 
     async generateCommentStream(
@@ -22,22 +19,25 @@ export class AiConnection {
     ): Promise<void> {
         try {
             const response = await axios.post(`${this.baseUrl}/api/generate`, {
-                model: this.model,
+                model: "codeglass:latest",
                 prompt: prompt,
                 stream: true
             }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
                 responseType: 'stream'
             });
 
             return new Promise<void>((resolve, reject) => {
                 response.data.on('data', (chunk: Buffer) => {
                     const chunkStr = chunk.toString();
-                    onChunk(chunkStr);
-                    onProgress(chunkStr.length);
+                    try {
+                        const parsedChunk = JSON.parse(chunkStr);
+                        if (parsedChunk.response) {
+                            onChunk(parsedChunk.response);
+                            onProgress(parsedChunk.response.length);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing chunk:', e);
+                    }
                 });
 
                 response.data.on('end', () => {
@@ -46,6 +46,11 @@ export class AiConnection {
 
                 response.data.on('error', (error: Error) => {
                     reject(error);
+                });
+
+                token.onCancellationRequested(() => {
+                    response.data.destroy();
+                    reject(new Error('Operation cancelled'));
                 });
             });
         } catch (error) {
