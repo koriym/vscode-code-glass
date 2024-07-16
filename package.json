@@ -1,38 +1,52 @@
 {
-  "name": "codeglass",
-  "displayName": "CodeGlass",
-  "description": "AI-powered code insights for VS Code",
+  "name": "code-glass",
+  "displayName": "",
+  "description": "",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.91.0"
   },
   "categories": [
     "Other"
   ],
+  "activationEvents": [
+    "onCommand:codeglass.addComments"
+  ],
+  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "codeglass.showPreview",
-        "title": "CodeGlass: Show Code Preview"
+        "command": "codeglass.addComments",
+        "title": "CodeGlass: Add Comments"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "CodeGlass",
+      "properties": {
+        "codeglass.connectionType": {
+          "type": "string",
+          "enum": ["ollama", "deepseek"],
+          "default": "ollama",
+          "description": "Select the AI service to use for code commenting"
+        }
+      }
+    }
   },
-  "main": "./out/extension.js",
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "npx tsc -p .",
+    "build": "node esbuild.js",
+    "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "watch:esbuild": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts"
   },
   "devDependencies": {
-    "@types/node": "^14.14.37",
-    "@types/vscode": "^1.75.0",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.25.0",
-    "typescript": "^4.9.5"
+    "@types/node": "14.x",
+    "@types/vscode": "^1.60.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
+    "@typescript-eslint/parser": "^4.26.0",
+    "esbuild": "^0.23.0",
+    "eslint": "^7.27.0",
+    "typescript": "^4.3.2"
   },
   "dependencies": {
     "axios": "^0.21.1"

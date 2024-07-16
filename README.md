@@ -6,7 +6,6 @@ CodeGlass is a Visual Studio Code extension designed to enhance code readability
 
 1. **Code Preview**: Display the current active editor's content in a side panel.
 2. **AI-Powered Comments**: Generate and display AI-created comments alongside the original code (to be implemented).
-3. **Hypertext Capabilities**: Add @link annotations to comments, referencing language documentation or library information (to be implemented).
 
 ## Prerequisites
 
@@ -44,13 +43,7 @@ FROM deepseek-coder-v2:16b
 PARAMETER temperature 0.2
 PARAMETER top_p 0.95
 
-SYSTEM """
-You are an AI assistant specialized in analyzing source code and generating insightful comments. Your task is to enhance code readability and understanding by providing brief, clear explanations. Focus on:
-1. Summarizing the main purpose of the code.
-2. Identifying key algorithms or design patterns used.
-3. Highlighting potential issues or areas for improvement.
-4. Explaining complex or non-obvious parts of the code.
-Be precise, technical, and keep your comments concise.
+SYSTEM """You are a professional AI assistant that analyses source code and generates insightful comments. Your task is to provide concise and clear explanations to improve readability and understanding of the code. 
 """
 ```
 
@@ -73,7 +66,7 @@ Be precise, technical, and keep your comments concise.
 ### 4. Editing the Code
 
 1. Main extension logic is in `src/extension.ts`
-2. AI interaction is handled in `src/ollamaConnection.ts`
+2. AI interaction is handled in `src/ollamaConnection.ts`, `src/aiConnection.ts`
 3. After making changes, recompile the project:
    ```
    npm run compile
@@ -98,3 +91,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 [MIT License](LICENSE)
+
+"" Additional Information
+
+In addition to the free Ollama, you can also use the paid DeepSeek-Coder-V2 API. To use this, set codeglass.connectionType in package.json configuration to deepseek. Ensure you set your API key in the `CODEGLASS_API_KEY` environment variable.

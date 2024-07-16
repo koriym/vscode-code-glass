@@ -1,40 +1,61 @@
 import axios from 'axios';
 import * as vscode from 'vscode';
+import { AiConnectionInterface } from './aiConnectionInterface';
 
-export class OllamaConnection {
-  private baseUrl: string;
-  private model: string;
+export class OllamaConnection implements AiConnectionInterface {
+    private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:11434', model: string = 'codeglass') {
-    this.baseUrl = baseUrl;
-    this.model = model;
-    console.log(`OllamaConnection initialized with baseUrl: ${baseUrl} and model: ${model}`);
-  }
-
-  async generateComment(code: string, progress: vscode.Progress<{ message?: string; increment?: number }>): Promise<string> {
-    try {
-      console.log('Adding comments to code:', code.substring(0, 100) + '...');
-      progress.report({ message: 'Analyzing code and adding comments...' });
-  
-      const response = await axios.post(`${this.baseUrl}/api/generate`, {
-        model: this.model,
-        prompt: `Add appropriate comments to the following code while preserving its original structure. Only return the commented code:\n\n${code}`,
-        stream: false
-      }, { 
-        timeout: 60000,
-        headers: { 'Content-Type': 'application/json' }
-      });
-  
-      console.log('Response received from Ollama');
-      progress.report({ message: 'Processing AI response...' });
-  
-      return response.data.response || 'Unable to add comments.';
-    } catch (error) {
-      console.error('Error adding comments:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error details:', error.response?.data);
-      }
-      throw error;
+    constructor() {
+        const config = vscode.workspace.getConfiguration('codeglass');
+        this.baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || 'http://localhost:11434';
     }
-  }
+
+    async generateCommentStream(
+        code: string,
+        prompt: string,
+        onChunk: (chunk: string) => void,
+        onProgress: (progress: number) => void,
+        token: vscode.CancellationToken
+    ): Promise<void> {
+        try {
+            const response = await axios.post(`${this.baseUrl}/api/generate`, {
+                model: "codeglass:latest",
+                prompt: prompt,
+                stream: true
+            }, {
+                responseType: 'stream'
+            });
+
+            return new Promise<void>((resolve, reject) => {
+                response.data.on('data', (chunk: Buffer) => {
+                    const chunkStr = chunk.toString();
+                    try {
+                        const parsedChunk = JSON.parse(chunkStr);
+                        if (parsedChunk.response) {
+                            onChunk(parsedChunk.response);
+                            onProgress(parsedChunk.response.length);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing chunk:', e);
+                    }
+                });
+
+                response.data.on('end', () => {
+                    resolve();
+                });
+
+                response.data.on('error', (error: Error) => {
+                    reject(error);
+                });
+
+                token.onCancellationRequested(() => {
+                    response.data.destroy();
+                    reject(new Error('Operation cancelled'));
+                });
+            });
+        } catch (error) {
+            console.error('Error in generateCommentStream:', error);
+            throw error;
+        }
+    }
 }
