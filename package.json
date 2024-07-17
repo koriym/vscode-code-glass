@@ -14,13 +14,14 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "codeglass.addComments",
-        "title": "CodeGlass: Add Comments"
-      }
-    ],
-    "configuration": {
+  "commands": [
+    {
+      "command": "codeglass.addComments",
+      "title": "CodeGlass: Add Comments"
+    }
+  ],
+  "configuration": [
+    {
       "title": "CodeGlass",
       "properties": {
         "codeglass.connectionType": {
@@ -31,7 +32,8 @@
         }
       }
     }
-  },
+  ]
+},
   "scripts": {
     "build": "node esbuild.js",
     "compile": "tsc -p ./",
