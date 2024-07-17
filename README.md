@@ -4,7 +4,7 @@ CodeGlass is a Visual Studio Code extension designed to enhance code readability
 
 ## Core Features
 
-2. **AI-Powered Comments**: Generate and display AI-created comments alongside the original code.
+- **AI-Powered Comments**: Generate and display AI-created comments alongside the original code.
 
 ## Installation
 
