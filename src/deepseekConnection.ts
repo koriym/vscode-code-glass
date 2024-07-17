@@ -20,7 +20,10 @@ export class DeepseekConnection implements AiConnectionInterface {
         try {
             const response = await axios.post(`https://api.deepseek.com/chat/completions`, {
                 model: "deepseek-coder",
-                messages: [{role:"user", content: prompt}],
+                messages: [
+                    {"role": "system", "content": "あなたはソースコードを分析し、洞察に満ちたコメントを生成する専門のAIアシスタントです。あなたのタスクは、コードの可読性と理解を向上させるために、簡潔で明確な説明をソースコードの各行で提供することです。すべての文を日本語で記述してください。"},
+                    {role:"user", content: prompt}
+                ],
                 stream: true
             }, {
                 headers: {
