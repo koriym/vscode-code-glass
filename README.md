@@ -15,8 +15,7 @@ CodeGlass is now available on the Visual Studio Code marketplace. You can easily
 3. Search for "code-glass"
 4. Click on the "Install" button next to CodeGlass
 
-Alternatively, you can install it directly from the marketplace website:
-[CodeGlass on VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=code-glass)
+Alternatively, you can install it directly from the marketplace website: [CodeGlass on VS Code Marketplace](https://github.com/koriym/vscode-code-glass)
 
 After installation, you'll need to set up the AI backend (Ollama or DeepSeek) as described in the "Getting Started" section below.
 
