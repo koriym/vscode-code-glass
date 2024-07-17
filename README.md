@@ -1,23 +1,35 @@
 # CodeGlass
 
-[Japanese](README.ja.md)
-
 CodeGlass is a Visual Studio Code extension designed to enhance code readability and understanding. It uses AI to generate insightful comments for source code, making it easier for developers to comprehend complex codebases, learn new languages, and onboard to new projects.
 
 ## Core Features
 
 2. **AI-Powered Comments**: Generate and display AI-created comments alongside the original code.
 
+## Installation
+
+CodeGlass is now available on the Visual Studio Code marketplace. You can easily install it by following these steps:
+
+1. Open Visual Studio Code
+2. Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X)
+3. Search for "code-glass"
+4. Click on the "Install" button next to CodeGlass
+
+Alternatively, you can install it directly from the marketplace website:
+[CodeGlass on VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=code-glass)
+
+After installation, you'll need to set up the AI backend (Ollama or DeepSeek) as described in the "Getting Started" section below.
+
 ## Prerequisites
 
 - Node.js (v14 or later)
 - npm
 - Visual Studio Code
-- [Ollama](https://ollama.ai/)
+- [Ollama](https://ollama.ai/) (if using the local AI option)
 
 ## Getting Started
 
-### 1. Clone and Setup
+### 1. Clone and Setup (for development)
 
 1. Clone the repository:
 
@@ -27,6 +39,8 @@ CodeGlass is a Visual Studio Code extension designed to enhance code readability
    ```
 
 ### 2. Setting up the AI Model
+
+#### Option 1: Ollama (Local AI)
 
 1. Ensure Ollama is installed and running.
 
@@ -53,9 +67,15 @@ SYSTEM """You are a professional AI assistant that analyses source code and gene
    ollama create codeglass -f Modelfile
    ```
 
+#### Option 2: DeepSeek (Cloud AI)
+
+1. Create a DeepSeek account if you don't already have one.
+2. Obtain an API key from your DeepSeek account dashboard.
+3. Set up an environment variable named `CODEGLASS_API_KEY` with your DeepSeek API key as its value (see Configuration section for details).
+
 ### 3. Running the Extension
 
-1. Open the project in VS Code:
+1. Open VS Code:
    ```
    code .
    ```
@@ -64,7 +84,7 @@ SYSTEM """You are a professional AI assistant that analyses source code and gene
 
 3. In the new window, open a code file and run the "CodeGlass: Show Code Preview" command from the command palette (Ctrl+Shift+P or Cmd+Shift+P).
 
-### 4. Editing the Code
+### 4. Editing the Code (for development)
 
 1. Main extension logic is in `src/extension.ts`
 2. AI interaction is handled in `src/ollamaConnection.ts`, `src/aiConnection.ts`
@@ -86,6 +106,7 @@ By editing the prompts, you can develop features beyond just comment generation.
 ## Configuration
 
 CodeGlass allows you to choose between different AI services for code commenting. You can configure this setting through VS Code's settings interface.
+
 
 ### Changing the AI Service
 
@@ -155,3 +176,7 @@ Note: Keep your API key confidential and never share it publicly.
 - If you encounter issues with the AI model, ensure Ollama is running and the codeglass model is correctly loaded.
 - Check the Debug Console in VS Code for detailed error messages.
 - If you're using DeepSeek and experiencing issues, verify that your API key is correctly set in the environment variables.
+
+## GitHub Repository
+
+https://github.com/koriym/vscode-code-glass
