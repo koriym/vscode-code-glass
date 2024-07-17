@@ -1,8 +1,8 @@
 {
   "name": "code-glass",
-  "displayName": "",
-  "description": "",
-  "version": "0.0.1",
+  "displayName": "Code Glass",
+  "description": "AI Powered Code Comments",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.91.0"
   },
@@ -52,5 +52,9 @@
   },
   "dependencies": {
     "axios": "^0.21.1"
+  },
+  "publisher": "koriym",
+  "repository": {
+    "url": "https://github.com/koriym/vscode-code-glass"
   }
 }

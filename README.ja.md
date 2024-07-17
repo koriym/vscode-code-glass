@@ -1,21 +1,35 @@
 # CodeGlass
+
 CodeGlass は、コードの読みやすさと理解を向上させるために設計された Visual Studio Code 拡張機能です。AI を使用してソースコードの洞察力のあるコメントを生成し、開発者が複雑なコードベースを理解し、新しい言語を学び、新しいプロジェクトに参加しやすくします。
 
 ## 主な機能
 
+1**AI パワードコメント**: AI が作成したコメントを元のコードと並べて生成・表示します）。
 
-2. **AI パワードコメント**: AI が作成したコメントを元のコードと並べて生成・表示します。
+## インストール
+
+CodeGlass は現在、Visual Studio Code マーケットプレースで入手可能です。以下の手順で簡単にインストールできます：
+
+1. Visual Studio Code を開きます
+2. 拡張機能ビューを開きます（Windows/Linux では Ctrl+Shift+X、macOS では Cmd+Shift+X）
+3. "code-glass" を検索します
+4. CodeGlass の横にある "インストール" ボタンをクリックします
+
+または、マーケットプレースのウェブサイトから直接インストールすることもできます：
+[VS Code マーケットプレースの CodeGlass](https://marketplace.visualstudio.com/items?itemName=code-glass)
+
+インストール後、以下の "始め方" セクションで説明されているように、AI バックエンド（OllamaまたはDeepSeek）をセットアップする必要があります。
 
 ## 前提条件
 
 - Node.js (v14 以降)
 - npm
 - Visual Studio Code
-- [Ollama](https://ollama.ai/)
+- [Ollama](https://ollama.ai/)（ローカル AI オプションを使用する場合）
 
 ## 始め方
 
-### 1. クローンとセットアップ
+### 1. クローンとセットアップ（開発用）
 
 1. リポジトリをクローンします。
 
@@ -25,6 +39,8 @@ CodeGlass は、コードの読みやすさと理解を向上させるために�
    ```
 
 ### 2. AI モデルのセットアップ
+
+#### オプション 1: Ollama（ローカル AI）
 
 1. Ollama がインストールされ、実行されていることを確認します。
 
@@ -51,6 +67,12 @@ SYSTEM """You are a professional AI assistant that analyses source code and gene
    ollama create codeglass -f Modelfile
    ```
 
+#### オプション 2: DeepSeek（クラウド AI）
+
+1. DeepSeek アカウントをまだ持っていない場合は作成します。
+2. DeepSeek アカウントのダッシュボードから API キーを取得します。
+3. `CODEGLASS_API_KEY` という名前の環境変数を設定し、DeepSeek の API キーを値として設定します（詳細は設定セクションを参照）。
+
 ### 3. 拡張機能の実行
 
 1. VS Code でプロジェクトを開きます：
@@ -62,7 +84,7 @@ SYSTEM """You are a professional AI assistant that analyses source code and gene
 
 3. 新しいウィンドウで、コードファイルを開き、コマンドパレット（Ctrl+Shift+P または Cmd+Shift+P）から "CodeGlass: Show Code Preview" コマンドを実行します。
 
-### 4. コードの編集
+### 4. コードの編集（開発用）
 
 1. メインの拡張機能ロジックは `src/extension.ts` にあります。
 2. AI との対話は `src/ollamaConnection.ts`, `src/aiConnection.ts` で処理されています。
@@ -74,7 +96,7 @@ SYSTEM """You are a professional AI assistant that analyses source code and gene
 
 ### 5. プロンプトの編集
 
-CodeGlass の機能をカスタマイズしたり、異なる用途に適用したりするには、プロンプトを編集することができます。
+CodeGlass の機能をカスタマイズしたり、異なる用途に適用したりするには、プロンプトを編集できます：
 
 1. `prompts.ts` ファイルを開きます。
 2. このファイル内のプロンプトを編集して、AI の動作や生成するコンテンツを変更します。
@@ -120,7 +142,7 @@ CodeGlass が使用する AI サービスを変更するには：
 
 DeepSeek を AI サービスとして選択した場合、追加のセットアップが必要です：
 
-1. [DeepSeek](https://www.deepseek.com/) アカウントをまだ持っていない場合は作成します。
+1. DeepSeek アカウントをまだ持っていない場合は作成します。
 2. DeepSeek アカウントのダッシュボードから API キーを取得します。
 3. `CODEGLASS_API_KEY` という名前の環境変数を設定し、DeepSeek の API キーを値として設定します。
 
@@ -143,13 +165,19 @@ DeepSeek を AI サービスとして選択した場合、追加のセットア�
 
 ## 現在の状況と今後の開発
 
-- コードプレビュー機能は実装され、機能しています。
-- 現在、コメント生成には codellama:7b-instruct モデルを使用しています。
-- 品質についてはOllamaのものはそれほどでもないですが、これは調整の問題かもしれません。
-- プロンプトの編集ができればいいと考えてます。
+- コード・プレビュー機能が実装され、機能するようになった。
+- 現在、コメント生成にはcodellama:7b-instructモデルが使われている。
+- 品質に関しては、Ollamaのものはあまり良くないが、これは調整の問題かもしれません。
+- プロンプトの編集ができればいいと考えています。
 
 ## トラブルシューティング
 
 - AI モデルに問題がある場合は、Ollama が実行されており、codeglass モデルが正しく読み込まれていることを確認してください。
 - 詳細なエラーメッセージについては、VS Code のデバッグコンソールを確認してください。
 - DeepSeek を使用していて問題が発生した場合は、API キーが環境変数に正しく設定されていることを確認してください。
+
+## フィードバック
+
+皆様のご意見を歓迎します！問題が発生した場合や改善の提案がある場合は、[GitHub リポジトリ](リンク先をあなたのリポジトリに置き換えてください) で issue を開いてください。
+
+CodeGlassでコーディング体験が向上することを願っています！
