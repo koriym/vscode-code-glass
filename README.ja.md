@@ -96,7 +96,7 @@ SYSTEM """You are a professional AI assistant that analyses source code and gene
 
 ### 5. プロンプトの編集
 
-CodeGlass の機能をカスタマイズしたり、異なる用途に適用したりするには、プロンプトを編集することができます：
+CodeGlass の機能をカスタマイズしたり、異なる用途に適用したりするには、プロンプトを編集できます：
 
 1. `prompts.ts` ファイルを開きます。
 2. このファイル内のプロンプトを編集して、AI の動作や生成するコンテンツを変更します。
