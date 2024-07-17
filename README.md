@@ -122,7 +122,7 @@ Choose the option that best suits your needs and preferences.
 
 If you choose to use DeepSeek as your AI service, you'll need to perform some additional setup:
 
-1. Create a DeepSeek account if you don't already have one.
+1. Create a [DeepSeek](https://www.deepseek.com/) account if you don't already have one.
 2. Obtain an API key from your DeepSeek account dashboard.
 3. Set up an environment variable named `CODEGLASS_API_KEY` with your DeepSeek API key as its value.
 

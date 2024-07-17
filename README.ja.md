@@ -120,7 +120,7 @@ CodeGlass が使用する AI サービスを変更するには：
 
 DeepSeek を AI サービスとして選択した場合、追加のセットアップが必要です：
 
-1. DeepSeek アカウントをまだ持っていない場合は作成します。
+1. [DeepSeek](https://www.deepseek.com/) アカウントをまだ持っていない場合は作成します。
 2. DeepSeek アカウントのダッシュボードから API キーを取得します。
 3. `CODEGLASS_API_KEY` という名前の環境変数を設定し、DeepSeek の API キーを値として設定します。
 
