@@ -4,8 +4,27 @@ import { OllamaConnection } from './ollamaConnection';
 import { DeepseekConnection } from './deepseekConnection';
 import { AiConnectionInterface } from './aiConnectionInterface';
 
+async function updateConfiguration() {
+    let aiConnection = new OllamaConnection();
+    const models = await aiConnection.loadModelList();
+    const configuration = vscode.workspace.getConfiguration('codeglass');
+    configuration.update('model', {
+      type: 'string',
+      enum: models,
+      default: models[0],
+      description: 'Select model to use for code commenting'
+    }, vscode.ConfigurationTarget.Global);
+}
+
 export function activate(context: vscode.ExtensionContext) {
     console.log('CodeGlass is now active!');
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('codeglass.updateModels', async () => {
+            await updateConfiguration();
+            vscode.window.showInformationMessage('Model configuration updated');
+        })
+    );
 
     let disposable = vscode.commands.registerCommand('codeglass.addComments', async () => {
         const editor = vscode.window.activeTextEditor;
@@ -16,10 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
 
         const document = editor.document;
         const code = document.getText();
-        const prompt = `Add comments to the following code:\n\n${code}`;
+        // const prompt = `Please fix the errors in the code below:\n\n\`\`\`\n${code}`;
 
         const config = vscode.workspace.getConfiguration('codeglass');
         const connectionType = config.get('connectionType') as string;
+        const prompt = config.get('prompt') as string;
 
         let aiConnection: AiConnectionInterface;
         if (connectionType === 'ollama') {
@@ -108,6 +128,8 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(disposable);
+    // Call updateConfiguration on extension activation
+    updateConfiguration();
 }
 
 export function deactivate() {}

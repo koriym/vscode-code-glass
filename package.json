@@ -18,6 +18,10 @@
     {
       "command": "codeglass.addComments",
       "title": "CodeGlass: Add Comments"
+    },
+    {
+        "command": "codeglass.updateModels",
+        "title": "CodeGlass: Load Ollama Model List"
     }
   ],
   "configuration": [
@@ -29,6 +33,17 @@
           "enum": ["ollama", "deepseek"],
           "default": "ollama",
           "description": "Select the AI service to use for code commenting"
+        },
+        "codeglass.model": {
+          "type": "string",
+          "enum": [],
+          "default": "",
+          "description": "Select model to use for code commenting"
+        },
+        "codeglass.prompt": {
+          "type": "string",
+          "default": "",
+          "description": "AI Prompt"
         }
       }
     }

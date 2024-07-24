@@ -5,9 +5,23 @@ import { AiConnectionInterface } from './aiConnectionInterface';
 export class OllamaConnection implements AiConnectionInterface {
     private baseUrl: string;
 
+    private config;
+
     constructor() {
-        const config = vscode.workspace.getConfiguration('codeglass');
+        this.config = vscode.workspace.getConfiguration('codeglass');
         this.baseUrl = process.env.CODEGLASS_BASE_URL_KEY as string || 'http://localhost:11434';
+    }
+
+    async loadModelList(): Promise<string[]> {
+        try {
+            const response = await axios.get(`${this.baseUrl}/api/tags`);
+            const models = response.data.models
+                .map((model: any) => model.name);
+            return models;
+        } catch (error) {
+            console.error('Error in loadModelList:', error);
+            throw error;
+        }
     }
 
     async generateCommentStream(
@@ -19,7 +33,7 @@ export class OllamaConnection implements AiConnectionInterface {
     ): Promise<void> {
         try {
             const response = await axios.post(`${this.baseUrl}/api/generate`, {
-                model: "codeglass:latest",
+                model: this.config.get('model') || 'codeglass:latest',
                 prompt: prompt,
                 stream: true
             }, {
