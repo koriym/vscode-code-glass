@@ -43,7 +43,8 @@
         "codeglass.prompt": {
           "type": "string",
           "default": "",
-          "description": "AI Prompt"
+          "description": "AI Prompt",
+          "editPresentation": "multilineText"
         }
       }
     }
